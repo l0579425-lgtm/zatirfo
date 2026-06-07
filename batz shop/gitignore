@@ -1,0 +1,67 @@
+# ⚠️ ENVIRONMENT FILES - CREDENZIALI SENSIBILI - NON COMMITARE MAI! ⚠️
+# Contiene password, chiavi private, token e dati amministrativi
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+
+# ⚠️ DATABASE - DATI UTENTI E ORDINI - NON COMMITARE! ⚠️
+zatirfo_database.db
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ⚠️ VIRTUAL ENVIRONMENTS - NON COMMITARE! ⚠️
+venv/
+ENV/
+env/
+.venv/
+pipenv.lock
+
+# IDE & Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Session and cache files
+flask_session/
+instance/
+.pytest_cache/
+.coverage
+
+# OS
+Thumbs.db
+.DS_Store
+
+# ⚠️ CHIAVI E SECRETS - PROTEZIONE ADMIN ⚠️
+*.key
+*.pem
+*.p12
+secrets/
+.secrets/

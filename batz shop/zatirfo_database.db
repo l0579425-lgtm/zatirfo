@@ -1,0 +1,15 @@
+{
+    "users": [
+        {
+            "id": "admin_master",
+            "name": "Admin",
+            "email": "admin@zatirfo.com",
+            "password": "scrypt:32768:8:1$AHROJZDeNUUTI7vR$6bb00561144a33d561aeb9bd69324b4d1ebd67874e7d1719a2163e1d2cd2e4dc4036853442bdf910f77e33a9eb697a7731791f9466bcd65f40939e3d56116000",
+            "isAdmin": true
+        }
+    ],
+    "products": [],
+    "orders": [],
+    "reviews": [],
+    "logo": "zatirfo.png"
+}

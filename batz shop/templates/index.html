@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth bg-black">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zatirfo Shop - Premium Digital</title>
+    <meta name="description" content="Il miglior marketplace per account e servizi digitali. Acquista in sicurezza con crypto o PayPal.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script>
+        const GOOGLE_CLIENT_ID = "{{ google_client_id }}";
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: { batz: { bg: '#000000', card: '#0a0a0a', border: '#222222', accent: '#ffffff', muted: '#888888' } },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards',
+                        'slide-down': 'slideDown 0.4s ease-out forwards',
+                        'slide-left': 'slideLeft 0.5s ease-out forwards',
+                        'scroll': 'scroll 30s linear infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'bounce-in': 'bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+                        'glow': 'glow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideDown: { '0%': { opacity: '0', transform: 'translateY(-20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        slideLeft: { '0%': { opacity: '0', transform: 'translateX(20px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
+                        scroll: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } },
+                        bounceIn: { '0%': { opacity: '0', transform: 'scale(0.8)' }, '50%': { opacity: '1', transform: 'scale(1.05)' }, '100%': { opacity: '1', transform: 'scale(1)' } },
+                        glow: { '0%': { boxShadow: '0 0 20px rgba(255, 255, 255, 0.2)' }, '50%': { boxShadow: '0 0 40px rgba(255, 255, 255, 0.4)' }, '100%': { boxShadow: '0 0 20px rgba(255, 255, 255, 0.2)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #000000; color: #ffffff; overflow-x: hidden; user-select: none; -webkit-user-select: none; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #333333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #ffffff; }
+        .glass { background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .text-gradient { background: linear-gradient(to right, #ffffff, #666666); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        #cursor-glow { position: fixed; width: 800px; height: 800px; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(0,0,0,0) 70%); border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); z-index: -1; transition: opacity 0.3s ease; }
+        .bg-grid { background-size: 40px 40px; background-image: linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px); }
+        .hover-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .hover-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.4); box-shadow: 0 10px 30px -10px rgba(255,255,255,0.1); }
+        .mock-img { background: linear-gradient(135deg, #111 0%, #222 100%); position: relative; }
+        .marquee-container { display: flex; width: max-content; }
+        .marquee-wrapper:hover .marquee-container { animation-play-state: paused; }
+        #toast { visibility: hidden; min-width: 280px; max-width: 420px; background: #ffffff; color: #000000; text-align: center; border-radius: 12px; font-weight: 600; padding: 16px 20px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; transform: translateX(-50%); box-shadow: 0 8px 32px rgba(255,255,255,0.15); opacity: 0; transition: opacity 0.3s, bottom 0.3s, visibility 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
+        #toast.toast-error { background: #1a0000; color: #ff6b6b; border: 1px solid #ff3333; }
+        #toast.toast-success { background: #001a00; color: #6bff6b; border: 1px solid #33ff33; }
+        .logo-transparent-dark { filter: invert(1) brightness(2); mix-blend-mode: screen; }
+        /* Step indicator */
+        .step-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; border: 2px solid #333; background: #111; transition: all 0.3s; }
+        .step-dot.active { border-color: #fff; background: #fff; color: #000; }
+        .step-dot.done { border-color: #fff; background: transparent; color: #fff; }
+        .step-line { flex: 1; height: 1px; background: #333; transition: background 0.3s; }
+        .step-line.done { background: #fff; }
+        /* Timer */
+        #paymentTimer { font-variant-numeric: tabular-nums; }
+        .timer-urgent { color: #ff4444 !important; animation: pulse 1s infinite; }
+        /* Admin badge stati */
+        .badge-attesa { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .badge-verificato { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .badge-completato { background: rgba(255,255,255,0.1); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); }
+        .badge-rifiutato { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-annullato { background: rgba(107,114,128,0.15); color: #9ca3af; border: 1px solid rgba(107,114,128,0.3); }
+        /* QR canvas */
+        #qrCanvas { image-rendering: pixelated; }
+        /* Admin tab */
+        .admin-tab { padding: 10px 20px; border-bottom: 2px solid transparent; font-weight: 500; font-size: 14px; color: #888; transition: all 0.2s; cursor: pointer; }
+        .admin-tab.active { border-color: #fff; color: #fff; }
+        /* Stat card */
+        .stat-card { background: #0a0a0a; border: 1px solid #222; border-radius: 16px; padding: 20px; transition: border-color 0.2s; }
+        .stat-card:hover { border-color: #444; }
+        /* Fraud indicator */
+        .fraud-flag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+        /* Scrollable table wrapper */
+        .table-scroll { overflow-x: auto; }
+        /* Order row hover */
+        .order-row:hover { background: #0f0f0f; }
+        /* Verifica button spinner */
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="antialiased selection:bg-white selection:text-black">
+
+    <div id="cursor-glow"></div>
+    <div class="fixed inset-0 z-[-2] bg-grid pointer-events-none opacity-40"></div>
+    <div id="toast">Notifica</div>
+
+    <!-- NAVBAR -->
+    <nav class="fixed w-full z-50 glass transition-all duration-300 border-b border-batz-border" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="#home" class="flex-shrink-0 flex items-center cursor-pointer group">
+                    <img src="zatirfo.png" alt="Shop Logo" class="logo-transparent-dark w-24 h-10 object-contain mr-3 transition-transform group-hover:scale-105" onerror="this.src='https://placehold.co/100x100/ffffff/000000?text=Z'">
+                </a>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="nav-link text-batz-muted hover:text-white transition-colors px-3 py-2 text-sm font-medium">Home</a>
+                        <a href="#products" class="nav-link text-batz-muted hover:text-white transition-colors px-3 py-2 text-sm font-medium">Prodotti</a>
+                        <a href="#reviews" class="nav-link text-batz-muted hover:text-white transition-colors px-3 py-2 text-sm font-medium">Recensioni</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4" id="nav-auth-container"></div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-20 min-h-[85vh]">
+
+        <!-- HOME -->
+        <section id="page-home" class="page-section relative pt-20 pb-20 lg:pt-32 lg:pb-32 overflow-hidden flex flex-col items-center animate-fade-in">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center w-full">
+                <div class="inline-flex items-center space-x-2 bg-batz-card border border-batz-border rounded-full px-4 py-1.5 mb-8">
+                    <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    <span class="text-xs font-medium text-batz-muted uppercase tracking-wider">Esperienza Premium B&W</span>
+                </div>
+                <h1 class="text-5xl md:text-8xl font-extrabold tracking-tighter mb-6 leading-tight">Qualità <br><span class="text-gradient">Senza Compromessi.</span></h1>
+                <p class="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-batz-muted mb-16 font-light">Il miglior marketplace per account e servizi digitali.</p>
+                <div class="w-full relative marquee-wrapper overflow-hidden mb-12">
+                    <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-black to-transparent z-10 pointer-events-none"></div>
+                    <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-black to-transparent z-10 pointer-events-none"></div>
+                    <div class="marquee-container animate-scroll" id="homeMarquee"></div>
+                </div>
+                <div class="flex justify-center items-center">
+                    <a href="#products" class="bg-white text-black hover:bg-gray-200 px-8 py-4 rounded-full text-md font-bold transition-all flex items-center space-x-2">
+                        <span>Vedi Tutti i Prodotti</span><i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRODUCTS -->
+        <section id="page-products" class="page-section hidden py-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <h2 class="text-4xl font-extrabold tracking-tight mb-2">Catalogo Prodotti</h2>
+                        <p class="text-batz-muted">Seleziona un prodotto per procedere all'acquisto.</p>
+                    </div>
+                    <div class="mt-6 md:mt-0 w-full md:w-72 relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none"><i class="fa-solid fa-magnifying-glass text-batz-muted"></i></div>
+                        <input type="text" id="searchInput" placeholder="Cerca..." class="w-full bg-batz-card border border-batz-border focus:border-white rounded-full py-3 pl-12 pr-4 text-white outline-none transition-all">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="productsGrid"></div>
+                <div id="noResults" class="hidden text-center py-20 border border-dashed border-batz-border rounded-2xl mt-8">
+                    <i class="fa-solid fa-ghost text-4xl text-batz-border mb-4"></i>
+                    <p class="text-batz-muted text-lg">Nessun prodotto trovato.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PAYMENT -->
+        <section id="page-payment" class="page-section hidden py-10 flex flex-col items-center justify-center animate-fade-in">
+            <div class="w-full max-w-2xl px-4">
+                <button onclick="cancelPayment()" class="text-batz-muted hover:text-white mb-6 flex items-center transition-colors">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Torna indietro
+                </button>
+
+                <!-- Step Indicator -->
+                <div class="flex items-center mb-8 px-2">
+                    <div class="flex flex-col items-center">
+                        <div class="step-dot done" id="step1dot"><i class="fa-solid fa-check text-xs"></i></div>
+                        <span class="text-xs text-batz-muted mt-1">Prodotto</span>
+                    </div>
+                    <div class="step-line done mx-1" id="stepline1"></div>
+                    <div class="flex flex-col items-center">
+                        <div class="step-dot active" id="step2dot">2</div>
+                        <span class="text-xs text-white mt-1 font-medium">Paga</span>
+                    </div>
+                    <div class="step-line mx-1" id="stepline2"></div>
+                    <div class="flex flex-col items-center">
+                        <div class="step-dot" id="step3dot">3</div>
+                        <span class="text-xs text-batz-muted mt-1">Conferma</span>
+                    </div>
+                </div>
+
+                <div class="bg-batz-card border border-batz-border p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+
+                    <div class="flex items-start justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-1">Pagamento Sicuro</h2>
+                            <p class="text-batz-muted text-sm" id="payOrderTitle">Ordine: Nome Prodotto</p>
+                        </div>
+                        <!-- Timer countdown -->
+                        <div class="text-right bg-[#0a0a0a] border border-batz-border rounded-xl px-4 py-3">
+                            <p class="text-xs text-batz-muted mb-1">Tempo rimasto</p>
+                            <p class="text-xl font-mono font-bold text-white" id="paymentTimer">30:00</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#050505] p-6 rounded-xl border border-batz-border mb-6">
+                        <h4 class="text-sm font-bold text-batz-muted mb-4 uppercase tracking-wider" id="payMethodLabel">Istruzioni di Invio</h4>
+
+                        <div class="flex flex-col md:flex-row gap-4 mb-6">
+                            <!-- Left: amount + address -->
+                            <div class="flex-1">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                                    <span class="text-white text-sm">Importo esatto:</span>
+                                    <strong class="text-xl text-white font-mono bg-black px-4 py-2 rounded-lg border border-batz-border" id="payAmount">Calcolo...</strong>
+                                </div>
+                                <p class="text-white text-sm mb-3">Invia all' <span id="payTypeText" class="font-bold text-white">indirizzo</span> qui sotto:</p>
+                                <div class="flex items-center space-x-2 bg-[#111] p-3 rounded-xl border border-white/20 mb-3">
+                                    <input type="text" id="payAddress" readonly class="bg-transparent w-full text-white text-xs outline-none font-mono tracking-wider">
+                                    <button onclick="copyPayAddress()" id="copyBtn" class="text-white bg-batz-card hover:bg-white hover:text-black border border-batz-border rounded-lg px-3 py-2 transition-colors font-bold text-xs whitespace-nowrap flex-shrink-0">
+                                        <i class="fa-solid fa-copy mr-1"></i>COPIA
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Right: QR Code (solo crypto) -->
+                            <div id="qrCodeContainer" class="hidden flex-shrink-0 flex flex-col items-center justify-center bg-white rounded-xl p-3">
+                                <canvas id="qrCanvas" width="120" height="120"></canvas>
+                                <p class="text-black text-xs mt-1 font-medium">Scansiona</p>
+                            </div>
+                        </div>
+
+                        <!-- Campo TX Hash (solo crypto) -->
+                        <div id="txHashContainer" class="hidden mb-4">
+                            <label class="block text-xs font-bold text-batz-muted uppercase mb-2">ID Transazione / TX Hash (Consigliato per verifica automatica)</label>
+                            <input type="text" id="payTxHash" class="w-full bg-black border border-batz-border focus:border-white rounded-xl p-3 text-white text-sm outline-none transition-colors font-mono" placeholder="Incolla il TX Hash / ID transazione qui...">
+                        </div>
+
+                        <!-- Info box -->
+                        <div id="cryptoHelperText" class="hidden flex items-start p-3 bg-blue-900/10 border border-blue-500/20 rounded-lg">
+                            <i class="fa-solid fa-circle-info text-blue-400 mt-0.5 mr-3 flex-shrink-0"></i>
+                            <p class="text-xs text-blue-200/70 leading-relaxed">
+                                Invia <strong class="text-blue-300">esattamente</strong> l'importo indicato — è personalizzato per il tuo ordine e serve per verificare automaticamente il pagamento. L'ordine sarà elaborato non appena la transazione riceverà le prime conferme sulla blockchain.
+                            </p>
+                        </div>
+                        <div id="paypalHelperText" class="hidden flex items-start p-3 bg-yellow-900/10 border border-yellow-500/20 rounded-lg">
+                            <i class="fa-brands fa-paypal text-yellow-400 mt-0.5 mr-3 flex-shrink-0"></i>
+                            <p class="text-xs text-yellow-200/70 leading-relaxed">
+                                Invia il pagamento come <strong class="text-yellow-300">"Amici e familiari"</strong> (Friends & Family) per evitare commissioni. Inserisci nell'oggetto l'ID ordine che ti verrà assegnato.
+                            </p>
+                        </div>
+                    </div>
+
+                    <button onclick="confirmFinalPurchase()" id="confirmPayBtn" class="w-full bg-white text-black font-extrabold py-5 rounded-xl hover:bg-gray-200 transition-colors shadow-lg shadow-white/10 flex items-center justify-center space-x-2 text-lg">
+                        <i class="fa-solid fa-check"></i>
+                        <span>Ho effettuato il pagamento</span>
+                    </button>
+                    <p class="text-center text-xs text-batz-muted mt-3">Cliccando confermi di aver inviato il pagamento. L'ordine verrà verificato manualmente dall'admin.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- AUTH -->
+        <section id="page-auth" class="page-section hidden py-20 flex items-center justify-center">
+            <div class="bg-batz-card border border-batz-border p-8 rounded-2xl w-full max-w-md mx-4 shadow-2xl relative overflow-hidden animate-bounce-in">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white to-transparent"></div>
+                
+                <!-- FORM DI LOGIN/REGISTRAZIONE -->
+                <div id="authMainForm" class="animate-fade-in">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-2" id="authTitle">Accedi</h2>
+                        <p class="text-batz-muted text-sm" id="authSubtitle">Entra nello Shop per gestire i tuoi ordini.</p>
+                    </div>
+                    <form id="authForm" class="space-y-4" onsubmit="event.preventDefault(); handleAuthSubmit();">
+                        <div id="nameField" class="hidden">
+                            <label class="block text-sm font-medium text-batz-muted mb-1">Nome Completo</label>
+                            <input type="text" id="authName" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg px-4 py-3 text-white outline-none transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-batz-muted mb-1">Email</label>
+                            <input type="email" id="authEmail" required class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg px-4 py-3 text-white outline-none transition-colors" placeholder="tu@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-batz-muted mb-1">Password</label>
+                            <div class="relative">
+                                <input type="password" id="authPassword" required class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg px-4 py-3 text-white outline-none transition-colors" placeholder="••••••••">
+                                <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-1/2 -translate-y-1/2 text-batz-muted hover:text-white">
+                                    <i class="fa-solid fa-eye" id="pwEyeIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-white text-black font-bold rounded-lg px-4 py-3 hover:bg-gray-200 transition-colors mt-2" id="authSubmitBtn">Accedi</button>
+                    </form>
+                    <div id="socialAuthContainer" class="mt-6">
+                        <div class="relative"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-batz-border"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-batz-card text-batz-muted">Oppure continua con</span></div></div>
+                        <button onclick="handleGoogleLogin()" class="mt-4 w-full bg-transparent border border-batz-border hover:border-white text-white font-medium rounded-lg px-4 py-3 transition-colors flex items-center justify-center space-x-3"><i class="fa-brands fa-google text-lg"></i><span>Google Login</span></button>
+                    </div>
+                    <p id="authToggleContainer" class="mt-8 text-center text-sm text-batz-muted"><span id="authToggleText">Non hai un account?</span> <button onclick="toggleAuthMode()" class="text-white hover:underline font-medium" id="authToggleBtn">Registrati</button></p>
+                </div>
+
+                <!-- FORM OTP VERIFICATION (nascosto, mostra con toggleAuthMode) -->
+                <div id="otpVerificationForm" class="hidden animate-slide-up">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold mb-2">Verifica Email</h2>
+                        <p class="text-batz-muted text-sm">Inserisci il codice OTP inviato a <span id="otpEmailDisplay" class="text-white font-mono text-xs bg-[#050505] px-2 py-1 rounded">email</span></p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-batz-muted mb-1">Codice OTP (6 cifre)</label>
+                            <input type="text" id="otpCode" inputmode="numeric" maxlength="6" placeholder="000000" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg px-4 py-3 text-white outline-none transition-colors text-center font-mono text-2xl tracking-widest">
+                        </div>
+                        <button onclick="verifyOTP()" type="button" class="w-full bg-white text-black font-bold rounded-lg px-4 py-3 hover:bg-gray-200 transition-colors">Verifica</button>
+                        <button onclick="resendOTP()" type="button" class="w-full bg-[#050505] border border-batz-border text-batz-muted hover:text-white rounded-lg px-4 py-3 transition-colors">Reinvia Codice</button>
+                    </div>
+                    <p class="mt-6 text-center text-sm text-batz-muted">
+                        <button onclick="toggleAuthMode()" class="text-white hover:underline font-medium">Torna indietro</button>
+                    </p>
+                    <!-- Timer OTP -->
+                    <div id="otpTimer" class="mt-4 text-center text-xs text-batz-muted">
+                        Codice scade tra <span id="otpCountdown" class="text-white font-mono">00:00</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CLIENT -->
+        <section id="page-client" class="page-section hidden py-10">
+            <div class="max-w-5xl mx-auto px-4">
+                <div class="flex items-center space-x-4 mb-10">
+                    <div class="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center text-2xl font-bold" id="clientAvatar">U</div>
+                    <div>
+                        <h2 class="text-3xl font-bold" id="clientName">Utente</h2>
+                        <p class="text-batz-muted" id="clientEmail">utente@email.com</p>
+                    </div>
+                </div>
+                <div class="border-b border-batz-border mb-8 flex space-x-6">
+                    <button class="pb-3 border-b-2 border-white font-medium text-white transition-colors" onclick="switchClientTab('orders')" id="tab-orders">I Miei Ordini</button>
+                    <button class="pb-3 border-b-2 border-transparent font-medium text-batz-muted hover:text-white transition-colors" onclick="switchClientTab('reviews')" id="tab-reviews">Le Mie Recensioni</button>
+                </div>
+                <div id="client-orders-content">
+                    <div class="bg-batz-card border border-batz-border rounded-xl overflow-hidden table-scroll">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead><tr class="bg-[#050505] border-b border-batz-border text-batz-muted text-sm">
+                                <th class="p-4 font-medium">ID Ordine</th>
+                                <th class="p-4 font-medium">Prodotto</th>
+                                <th class="p-4 font-medium">Metodo</th>
+                                <th class="p-4 font-medium">Data</th>
+                                <th class="p-4 font-medium">Prezzo</th>
+                                <th class="p-4 font-medium">Stato</th>
+                                <th class="p-4 font-medium text-right">Azioni</th>
+                            </tr></thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="client-reviews-content" class="hidden">
+                    <div class="mb-6 bg-batz-card border border-batz-border p-6 rounded-xl">
+                        <h3 class="text-lg font-bold mb-4">Lascia una recensione</h3>
+                        <div class="flex space-x-2 text-2xl mb-4 text-batz-muted cursor-pointer" id="starRating">
+                            <i class="fa-solid fa-star hover:text-white" onclick="setRating(1)"></i>
+                            <i class="fa-solid fa-star hover:text-white" onclick="setRating(2)"></i>
+                            <i class="fa-solid fa-star hover:text-white" onclick="setRating(3)"></i>
+                            <i class="fa-solid fa-star hover:text-white" onclick="setRating(4)"></i>
+                            <i class="fa-solid fa-star hover:text-white" onclick="setRating(5)"></i>
+                        </div>
+                        <textarea id="reviewText" rows="3" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg p-3 text-white outline-none resize-none mb-4" placeholder="Racconta la tua esperienza..."></textarea>
+                        <button onclick="submitReview()" class="bg-white text-black font-bold px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors">Pubblica</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADMIN -->
+        <section id="page-admin" class="page-section hidden py-10">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white flex items-center"><i class="fa-solid fa-shield-halved text-batz-muted mr-3"></i> Pannello Admin</h2>
+                        <p class="text-batz-muted">Gestisci catalogo, ordini e impostazioni del sito.</p>
+                    </div>
+                </div>
+
+                <!-- Stats rapide -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8" id="adminStatsGrid">
+                    <div class="stat-card"><p class="text-xs text-batz-muted mb-1">Fatturato Confermato</p><p class="text-2xl font-bold" id="statRevenue">—</p></div>
+                    <div class="stat-card"><p class="text-xs text-batz-muted mb-1">In Attesa</p><p class="text-2xl font-bold text-yellow-400" id="statPending">—</p></div>
+                    <div class="stat-card"><p class="text-xs text-batz-muted mb-1">Totale Ordini</p><p class="text-2xl font-bold" id="statTotal">—</p></div>
+                    <div class="stat-card"><p class="text-xs text-batz-muted mb-1">Utenti Registrati</p><p class="text-2xl font-bold" id="statUsers">—</p></div>
+                </div>
+
+                <!-- Admin Tabs -->
+                <div class="border-b border-batz-border mb-8 flex space-x-2">
+                    <button class="admin-tab active" onclick="switchAdminTab('orders')" id="admin-tab-orders"><i class="fa-solid fa-receipt mr-2"></i>Ordini</button>
+                    <button class="admin-tab" onclick="switchAdminTab('products')" id="admin-tab-products"><i class="fa-solid fa-box mr-2"></i>Prodotti</button>
+                    <button class="admin-tab" onclick="switchAdminTab('settings')" id="admin-tab-settings"><i class="fa-solid fa-gear mr-2"></i>Impostazioni</button>
+                </div>
+
+                <!-- TAB: Ordini -->
+                <div id="admin-tab-content-orders">
+                    <!-- Filtri ordini -->
+                    <div class="flex flex-wrap gap-3 mb-6">
+                        <button onclick="filterOrders('all')" class="order-filter-btn px-4 py-2 rounded-full text-sm border border-white bg-white text-black font-medium transition-all" data-filter="all">Tutti</button>
+                        <button onclick="filterOrders('In Attesa di Conferma')" class="order-filter-btn px-4 py-2 rounded-full text-sm border border-batz-border text-batz-muted hover:border-white hover:text-white font-medium transition-all" data-filter="In Attesa di Conferma">In Attesa</button>
+                        <button onclick="filterOrders('Pagamento Verificato')" class="order-filter-btn px-4 py-2 rounded-full text-sm border border-batz-border text-batz-muted hover:border-white hover:text-white font-medium transition-all" data-filter="Pagamento Verificato">Verificato</button>
+                        <button onclick="filterOrders('Completato')" class="order-filter-btn px-4 py-2 rounded-full text-sm border border-batz-border text-batz-muted hover:border-white hover:text-white font-medium transition-all" data-filter="Completato">Completato</button>
+                        <button onclick="filterOrders('Rifiutato')" class="order-filter-btn px-4 py-2 rounded-full text-sm border border-batz-border text-batz-muted hover:border-white hover:text-white font-medium transition-all" data-filter="Rifiutato">Rifiutato</button>
+                    </div>
+
+                    <div class="bg-batz-card border border-batz-border rounded-xl overflow-hidden table-scroll">
+                        <table class="w-full text-left border-collapse min-w-[900px]">
+                            <thead>
+                                <tr class="bg-[#050505] border-b border-batz-border text-batz-muted text-xs uppercase tracking-wider">
+                                    <th class="p-4 font-medium">ID</th>
+                                    <th class="p-4 font-medium">Cliente</th>
+                                    <th class="p-4 font-medium">Prodotto</th>
+                                    <th class="p-4 font-medium">Metodo / Importo</th>
+                                    <th class="p-4 font-medium">Data</th>
+                                    <th class="p-4 font-medium">Stato</th>
+                                    <th class="p-4 font-medium">Flag</th>
+                                    <th class="p-4 font-medium text-right">Azioni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminOrdersTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="noAdminOrders" class="hidden text-center py-20 border border-dashed border-batz-border rounded-2xl mt-4">
+                        <i class="fa-solid fa-receipt text-4xl text-batz-border mb-4"></i>
+                        <p class="text-batz-muted">Nessun ordine trovato.</p>
+                    </div>
+                </div>
+
+                <!-- TAB: Prodotti -->
+                <div id="admin-tab-content-products" class="hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                        <!-- Aggiungi prodotto -->
+                        <div class="lg:col-span-2 bg-batz-card border border-batz-border rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-4 text-white">Aggiungi Prodotto</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                                <input type="text" id="newProdTitle" placeholder="Nome Prodotto" class="bg-[#050505] border border-batz-border rounded-lg p-3 text-white outline-none focus:border-white transition-colors col-span-2">
+                                <div class="bg-[#050505] border border-batz-border rounded-lg p-2 col-span-2">
+                                    <span class="text-batz-muted text-xs ml-1 font-medium">Immagine (.png/.jpg)</span>
+                                    <input type="file" id="newProdImage" accept="image/*" class="text-white text-sm w-full outline-none file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200 transition-colors">
+                                </div>
+                                <input type="number" id="newProdPrice" placeholder="Prezzo (€)" step="0.01" class="bg-[#050505] border border-batz-border rounded-lg p-3 text-white outline-none focus:border-white transition-colors">
+                                <input type="number" id="newProdStock" placeholder="Scorte" class="bg-[#050505] border border-batz-border rounded-lg p-3 text-white outline-none focus:border-white transition-colors">
+                            </div>
+                            <button onclick="addNewProduct()" class="w-full bg-white text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-200 transition-colors">Crea Prodotto</button>
+                        </div>
+                        <!-- Logo site -->
+                        <div class="bg-batz-card border border-batz-border rounded-xl p-6 flex flex-col">
+                            <h3 class="text-xl font-bold mb-4 text-white">Logo del Sito</h3>
+                            <label class="block text-sm text-batz-muted mb-2">Carica nuovo logo</label>
+                            <input type="file" id="adminLogoFile" accept="image/*" onchange="updateSiteLogo(this)" class="w-full text-sm text-batz-muted file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200 transition-colors">
+                        </div>
+                    </div>
+                    <div class="bg-batz-card border border-batz-border rounded-xl overflow-hidden table-scroll">
+                        <table class="w-full text-left border-collapse min-w-[1000px]">
+                            <thead>
+                                <tr class="bg-[#050505] border-b border-batz-border text-batz-muted text-sm">
+                                    <th class="p-4 font-medium">Anteprima</th>
+                                    <th class="p-4 font-medium">Immagine</th>
+                                    <th class="p-4 font-medium">Nome Prodotto</th>
+                                    <th class="p-4 font-medium">Varianti</th>
+                                    <th class="p-4 font-medium">Prezzo (€)</th>
+                                    <th class="p-4 font-medium">Scorte</th>
+                                    <th class="p-4 font-medium text-right">Azione</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminProductsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- TAB: Impostazioni -->
+                <div id="admin-tab-content-settings" class="hidden">
+                    <div class="max-w-2xl">
+                        <div class="bg-batz-card border border-batz-border rounded-xl p-6 mb-6">
+                            <h3 class="text-xl font-bold mb-5 text-white flex items-center"><i class="fa-solid fa-credit-card mr-2 text-batz-muted"></i>Metodi di Pagamento</h3>
+                            <div class="space-y-4 mb-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-batz-muted uppercase mb-2"><i class="fa-brands fa-paypal mr-1"></i> PayPal (email)</label>
+                                    <input type="text" id="adminPaypal" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg p-3 text-white text-sm outline-none transition-colors" placeholder="email@paypal.com">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-batz-muted uppercase mb-2"><i class="fa-brands fa-bitcoin mr-1"></i> Indirizzo BTC</label>
+                                    <input type="text" id="adminBtc" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg p-3 text-white text-sm outline-none transition-colors font-mono" placeholder="bc1q...">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-batz-muted uppercase mb-2"><i class="fa-brands fa-ethereum mr-1"></i> Indirizzo ETH</label>
+                                    <input type="text" id="adminEth" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg p-3 text-white text-sm outline-none transition-colors font-mono" placeholder="0x...">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-batz-muted uppercase mb-2">Ł Indirizzo LTC</label>
+                                    <input type="text" id="adminLtc" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-lg p-3 text-white text-sm outline-none transition-colors font-mono" placeholder="ltc1q...">
+                                </div>
+                            </div>
+                            <button onclick="savePaymentSettings()" class="w-full bg-white text-black px-4 py-3 rounded-lg font-bold hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Salva Impostazioni Pagamento
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REVIEWS -->
+        <section id="page-reviews" class="page-section hidden py-10">
+            <div class="max-w-4xl mx-auto px-4 text-center">
+                <h2 class="text-4xl font-extrabold tracking-tight mb-4">Recensioni Reali</h2>
+                <p class="text-batz-muted mb-12">Feedback dagli utenti che hanno acquistato nel nostro shop.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left" id="publicReviewsContainer"></div>
+                <div id="noReviewsMsg" class="text-batz-muted text-center py-10 hidden">Nessuna recensione presente al momento.</div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-batz-border bg-[#020202] pt-16 pb-8 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center text-xs text-batz-muted">
+                <p>&copy; 2026 Zatirfo Shop. All rights reserved.</p>
+                <div class="flex items-center space-x-4 mt-4 md:mt-0 text-2xl text-white">
+                    <i class="fa-brands fa-bitcoin hover:scale-110 transition-transform cursor-default"></i>
+                    <i class="fa-brands fa-ethereum hover:scale-110 transition-transform cursor-default"></i>
+                    <i class="fa-brands fa-paypal hover:scale-110 transition-transform cursor-default"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALE CHECKOUT -->
+    <div id="checkoutModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div id="modal-overlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeCheckoutModal()"></div>
+        <div class="bg-batz-card border border-batz-border rounded-2xl w-full max-w-lg relative z-10 animate-slide-up shadow-2xl">
+            <div class="p-6 border-b border-batz-border flex justify-between items-center">
+                <h3 class="text-xl font-bold">Acquista Prodotto</h3>
+                <button onclick="closeCheckoutModal()" class="text-batz-muted hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="p-6" id="checkoutStep1">
+                <div class="flex items-center space-x-4 mb-6 bg-[#050505] p-4 rounded-xl border border-batz-border">
+                    <div id="modalIcon" class="text-3xl w-16 h-16 flex items-center justify-center flex-shrink-0"></div>
+                    <div><h4 id="modalTitle" class="font-bold text-lg">Title</h4><p id="modalPrice" class="text-white font-mono mt-1">€0.00</p></div>
+                </div>
+                <h5 class="text-sm font-bold text-batz-muted mb-3 uppercase tracking-wider">Metodo di Pagamento</h5>
+                <select id="variantSelect" class="w-full bg-[#050505] border border-batz-border focus:border-white rounded-xl p-4 text-white outline-none transition-all mb-4 hidden appearance-none cursor-pointer"></select>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" id="paymentMethods">
+                    <button class="payment-btn border border-batz-border bg-[#050505] hover:border-white rounded-xl p-3 flex flex-col items-center justify-center transition-all" onclick="selectPayment('PayPal')"><i class="fa-brands fa-paypal text-2xl mb-2"></i><span class="text-xs font-medium">PayPal</span></button>
+                    <button class="payment-btn border border-batz-border bg-[#050505] hover:border-white rounded-xl p-3 flex flex-col items-center justify-center transition-all" onclick="selectPayment('Bitcoin')"><i class="fa-brands fa-bitcoin text-2xl mb-2"></i><span class="text-xs font-medium">Bitcoin</span></button>
+                    <button class="payment-btn border border-batz-border bg-[#050505] hover:border-white rounded-xl p-3 flex flex-col items-center justify-center transition-all" onclick="selectPayment('Ethereum')"><i class="fa-brands fa-ethereum text-2xl mb-2"></i><span class="text-xs font-medium">Ethereum</span></button>
+                    <button class="payment-btn border border-batz-border bg-[#050505] hover:border-white rounded-xl p-3 flex flex-col items-center justify-center transition-all" onclick="selectPayment('Litecoin')"><span class="text-2xl mb-2 font-black">Ł</span><span class="text-xs font-medium">Litecoin</span></button>
+                </div>
+                <input type="hidden" id="selectedProductId"><input type="hidden" id="selectedPaymentMethod">
+                <button id="proceedBuyBtn" onclick="proceedToPayment()" class="w-full bg-white text-black font-bold py-4 rounded-xl hover:bg-gray-200 transition-colors opacity-50 cursor-not-allowed" disabled>Seleziona Pagamento</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALE VARIANTI ADMIN -->
+    <div id="adminVariantModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeVariantModal()"></div>
+        <div class="bg-batz-card border border-batz-border rounded-2xl w-full max-w-lg relative z-10 p-6 animate-slide-up shadow-2xl">
+            <h3 class="text-xl font-bold mb-4 text-white">Gestisci Varianti</h3>
+            <div id="variantList" class="space-y-3 mb-4 max-h-[40vh] overflow-y-auto pr-2"></div>
+            <button onclick="addVariantRow()" class="text-sm text-batz-muted hover:text-white mb-6 flex items-center transition-colors"><i class="fa-solid fa-plus mr-2"></i> Aggiungi nuova variante</button>
+            <div class="flex space-x-3">
+                <button onclick="closeVariantModal()" class="flex-1 bg-[#111] border border-batz-border py-3 rounded-xl text-white hover:bg-[#222] transition-colors">Annulla</button>
+                <button onclick="saveVariants()" class="flex-1 bg-white text-black py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors">Salva</button>
+            </div>
+            <input type="hidden" id="editingVariantProductId">
+        </div>
+    </div>
+
+    <!-- MODALE DETTAGLIO ORDINE ADMIN -->
+    <div id="adminOrderDetailModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeOrderDetailModal()"></div>
+        <div class="bg-batz-card border border-batz-border rounded-2xl w-full max-w-lg relative z-10 p-6 animate-slide-up shadow-2xl">
+            <div class="flex justify-between items-start mb-6">
+                <h3 class="text-xl font-bold text-white">Dettaglio Ordine</h3>
+                <button onclick="closeOrderDetailModal()" class="text-batz-muted hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="orderDetailContent" class="space-y-3 text-sm mb-6"></div>
+            <div class="mb-4">
+                <label class="block text-xs text-batz-muted uppercase mb-2">Note Admin</label>
+                <textarea id="adminOrderNotes" rows="2" class="w-full bg-[#050505] border border-batz-border rounded-lg p-3 text-white text-sm outline-none resize-none focus:border-white transition-colors" placeholder="Note interne..."></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <button onclick="updateOrderStatus('Completato')" class="bg-white text-black font-bold py-3 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-check"></i> Completa
+                </button>
+                <button onclick="updateOrderStatus('Pagamento Verificato')" class="bg-blue-500/10 border border-blue-500/30 text-blue-400 font-bold py-3 rounded-xl hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-shield-check"></i> Verifica Pagam.
+                </button>
+            </div>
+            <div class="grid grid-cols-2 gap-3 mb-3">
+                <button onclick="checkOrderPayment()" id="checkPaymentBtn" class="bg-[#111] border border-batz-border font-bold py-3 rounded-xl hover:bg-[#222] transition-colors flex items-center justify-center gap-2 text-sm text-white">
+                    <i class="fa-solid fa-satellite-dish"></i> Verifica On-Chain
+                </button>
+                <button onclick="updateOrderStatus('Rifiutato')" class="bg-red-500/10 border border-red-500/30 text-red-400 font-bold py-3 rounded-xl hover:bg-red-500/20 transition-colors flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-ban"></i> Rifiuta
+                </button>
+            </div>
+            <div id="checkPaymentResult" class="hidden p-3 rounded-lg border text-sm mt-2"></div>
+            <input type="hidden" id="detailOrderId">
+        </div>
+    </div>
+
+    <script>
+        // Blocca tasto destro e devtools
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) || (e.ctrlKey && e.key === 'U')) {
+                e.preventDefault(); return false;
+            }
+        });
+
+        // ===================== MOCK FETCH (DEV PREVIEW) =====================
+        let mockDb = {
+            users: [{ id: 'admin1', email: 'admin@zatirfo.com', password: 'Michele2311', name: 'Admin', isAdmin: true }],
+            products: [
+                { id: 'p1', title: 'Account Premium 1 Mese', price: 9.99, stock: 50, icon: '<i class="fa-solid fa-crown text-4xl"></i>', variants: [] },
+                { id: 'p2', title: 'Chiave Gioco XYZ', price: 19.99, stock: 10, icon: '<i class="fa-solid fa-gamepad text-4xl"></i>', variants: [] }
+            ],
+            orders: [], reviews: [],
+            logo: 'zatirfo.png',
+            paymentSettings: { paypal: 'admin@paypal.com', btc: 'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh', eth: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', ltc: 'ltc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh' }
+        };
+        let mockSessionUser = null;
+
+        const originalFetch = window.fetch;
+        window.fetch = async function(...args) {
+            let urlStr = '';
+            try { urlStr = typeof args[0] === 'string' ? args[0] : (args[0]?.url || String(args[0])); } catch(e) {}
+
+            const isPreviewEnv = ['blob:', 'file:'].includes(window.location.protocol) || !window.location.hostname || window.location.hostname.includes('usercontent');
+
+            const serveMock = (url) => {
+                const opts = args[1] || {};
+                const body = opts.body ? (() => { try { return JSON.parse(opts.body); } catch(e) { return null; }})() : null;
+                const ok = (data) => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(data) });
+                const now = new Date().toLocaleDateString('it-IT');
+
+                if (url.includes('/api/auth/me')) return ok(mockSessionUser ? { status: 'success', user: mockSessionUser } : { status: 'error' });
+                if (url.includes('/api/auth/login')) {
+                    const u = mockDb.users.find(u => u.email === body?.email && u.password === body?.password);
+                    if (u) { mockSessionUser = u; return ok({ status: 'success', user: u }); }
+                    return ok({ status: 'error', message: 'Credenziali errate' });
+                }
+                if (url.includes('/api/auth/google')) {
+                    const fakeUser = { id: 'u_google', email: 'google@example.com', name: 'Google User', isAdmin: false };
+                    mockSessionUser = fakeUser; if (!mockDb.users.some(u => u.email === fakeUser.email)) mockDb.users.push(fakeUser);
+                    return ok({ status: 'success', user: fakeUser });
+                }
+                if (url.includes('/api/auth/register')) {
+                    const newU = { id: 'u_' + Date.now(), email: body?.email, name: body?.name || 'Nuovo Utente', isAdmin: false };
+                    mockSessionUser = newU; mockDb.users.push(newU);
+                    return ok({ status: 'success', user: newU });
+                }
+                if (url.includes('/api/auth/logout')) { mockSessionUser = null; return ok({ status: 'success' }); }
+                if (url.includes('/api/data')) {
+                    const userOrders = mockSessionUser ? (mockSessionUser.isAdmin ? mockDb.orders : mockDb.orders.filter(o => o.userId === mockSessionUser.id)) : [];
+                    return ok({ products: mockDb.products, reviews: mockDb.reviews, logo: mockDb.logo, paymentSettings: mockDb.paymentSettings, orders: userOrders });
+                }
+                if (url.includes('/api/admin/save')) {
+                    if (body?.products) mockDb.products = body.products;
+                    if (body?.paymentSettings) mockDb.paymentSettings = body.paymentSettings;
+                    if (body?.logo) mockDb.logo = body.logo;
+                    return ok({ status: 'success' });
+                }
+                if (url.includes('/api/admin/stats')) {
+                    return ok({ status: 'success', stats: { totalRevenue: mockDb.orders.filter(o => o.status === 'Completato').reduce((s, o) => s + o.price, 0), pendingOrders: mockDb.orders.filter(o => o.status === 'In Attesa di Conferma').length, completedOrders: mockDb.orders.filter(o => o.status === 'Completato').length, totalOrders: mockDb.orders.length, totalUsers: mockDb.users.length, totalProducts: mockDb.products.length } });
+                }
+                if (url.includes('/api/admin/orders/update-status')) {
+                    const o = mockDb.orders.find(o => o.id === body?.orderId);
+                    if (o) { o.status = body.status; if (body.adminNotes) o.adminNotes = body.adminNotes; }
+                    return ok({ status: 'success', order: o });
+                }
+                if (url.includes('/api/admin/orders/delete')) {
+                    mockDb.orders = mockDb.orders.filter(o => o.id !== body?.orderId);
+                    return ok({ status: 'success' });
+                }
+                if (url.includes('/api/admin/orders/check-payment')) {
+                    return ok({ status: 'success', result: { found: false, error: 'Simulazione: nessuna transazione trovata in ambiente di sviluppo.' } });
+                }
+                if (url.includes('/api/orders')) {
+                    const newOrder = {
+                        id: 'ORD-MOCK' + Date.now().toString(16).toUpperCase(),
+                        userId: mockSessionUser?.id, userName: mockSessionUser?.name, userEmail: mockSessionUser?.email,
+                        productId: body?.productId, productTitle: body?.finalTitle, price: body?.finalPrice,
+                        method: body?.method, status: 'In Attesa di Conferma', date: now,
+                        orderTimestamp: Math.floor(Date.now() / 1000), cryptoAmount: body?.method !== 'PayPal' ? 0.00123456 : null,
+                        adminNotes: '', same_ip_count: 0
+                    };
+                    mockDb.orders.unshift(newOrder);
+                    return ok({ status: 'success', order: newOrder });
+                }
+                if (url.includes('/api/reviews')) {
+                    const newRev = { id: 'REV-MOCK', userId: mockSessionUser?.id, userName: mockSessionUser?.name, text: body?.text, rating: body?.rating, date: now };
+                    mockDb.reviews.unshift(newRev); return ok({ status: 'success', review: newRev });
+                }
+                if (url.includes('/api/payments/convert')) {
+                    let amount = 0; try { amount = parseFloat(url.split('amount=')[1].split('&')[0]); } catch(e) {}
+                    let currency = 'btc'; try { currency = url.split('currency=')[1]?.split('&')[0]; } catch(e) {}
+                    const rates = { btc: 60000, eth: 3000, ltc: 80 };
+                    const rate = rates[currency] || 60000;
+                    return ok({ status: 'success', crypto_amount: parseFloat((amount / rate).toFixed(8)), currency });
+                }
+                return ok({ status: 'error', message: 'Endpoint non trovato' });
+            };
+
+            if (isPreviewEnv && urlStr.includes('/api/')) return serveMock(urlStr);
+            try {
+                const res = await originalFetch.apply(this, args);
+                if (!res.ok && urlStr.includes('/api/')) { console.warn('Fallback mock per:', urlStr); return serveMock(urlStr); }
+                return res;
+            } catch(err) {
+                if (urlStr.includes('/api/')) { console.warn('Fallback mock per:', urlStr); return serveMock(urlStr); }
+                throw err;
+            }
+        };
+        // ===================== FINE MOCK FETCH =====================
+
+        // Stato globale
+        let currentUser = null;
+        let currentRating = 5;
+        let products = [];
+        let orders = [];
+        let reviews = [];
+        let currentLogo = 'zatirfo.png';
+        let paymentSettings = {};
+        let tempOrderParams = null;
+        let paymentTimerInterval = null;
+        let currentAdminOrderId = null;
+        let currentOrderFilter = 'all';
+
+        // ===================== DATABASE =====================
+        async function loadDatabase() {
+            try {
+                const [authRes, dataRes] = await Promise.all([fetch('/api/auth/me'), fetch('/api/data')]);
+                const [authData, parsed] = await Promise.all([authRes.json(), dataRes.json()]);
+
+                currentUser = authData.status === 'success' ? authData.user : null;
+                products = parsed.products || [];
+                orders = parsed.orders || [];
+                reviews = parsed.reviews || [];
+                paymentSettings = parsed.paymentSettings || {};
+
+                if (parsed.logo) {
+                    currentLogo = parsed.logo;
+                    const navLogo = document.querySelector('nav img');
+                    if (navLogo) navLogo.src = currentLogo;
+                }
+
+                updateNavAuth();
+                renderProducts();
+                renderMarquee();
+            } catch(e) { console.error('DB Load Error', e); }
+        }
+
+        async function saveAdminData() {
+            try {
+                const res = await fetch('/api/admin/save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ products, logo: currentLogo, paymentSettings }) });
+                const data = await res.json();
+                if (data.status !== 'success') showToast(data.message || 'Errore di salvataggio', 'error');
+            } catch(e) { console.error('Save Error', e); }
+        }
+
+        // ===================== CURSOR GLOW =====================
+        const glow = document.getElementById('cursor-glow');
+        window.addEventListener('mousemove', e => requestAnimationFrame(() => { glow.style.left = e.clientX + 'px'; glow.style.top = e.clientY + 'px'; }));
+
+        // ===================== TOAST =====================
+        function showToast(msg, type = 'info') {
+            const t = document.getElementById('toast');
+            if (!t) return;
+            t.textContent = msg;
+            t.className = type === 'error' ? 'toast-error show' : type === 'success' ? 'toast-success show' : 'show';
+            clearTimeout(t._timeout);
+            t._timeout = setTimeout(() => { t.className = t.className.replace('show', '').trim(); }, 3500);
+        }
+
+        // ===================== ROUTING =====================
+        function handleRoute() {
+            let hash = window.location.hash.substring(1) || 'home';
+            if ((hash === 'client' || hash === 'admin' || hash === 'payment') && !currentUser) { window.location.hash = 'login'; return; }
+            if (hash === 'admin' && currentUser && !currentUser.isAdmin) { window.location.hash = 'home'; showToast('Accesso negato.', 'error'); return; }
+            if (hash === 'login' && currentUser) { window.location.hash = currentUser.isAdmin ? 'admin' : 'client'; return; }
+            if (hash === 'payment' && !tempOrderParams) { window.location.hash = 'products'; return; }
+
+            document.querySelectorAll('.page-section').forEach(s => { s.classList.add('hidden'); s.classList.remove('animate-fade-in'); });
+
+            if (hash === 'products') renderProducts();
+            if (hash === 'admin') { renderAdminTable(); renderAdminOrders(); populatePaymentSettingsInputs(); loadAdminStats(); }
+            if (hash === 'client') renderClientOrders();
+            if (hash === 'reviews') renderPublicReviews();
+
+            const target = document.getElementById('page-' + (hash === 'login' ? 'auth' : hash));
+            if (target) { target.classList.remove('hidden'); setTimeout(() => target.classList.add('animate-fade-in'), 10); }
+            else { document.getElementById('page-home').classList.remove('hidden'); }
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                const isActive = link.getAttribute('href') === '#' + hash;
+                link.classList.toggle('text-white', isActive); link.classList.toggle('font-bold', isActive); link.classList.toggle('text-batz-muted', !isActive);
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        window.addEventListener('hashchange', handleRoute);
+
+        // ===================== AUTH =====================
+        let isLoginMode = true;
+        let otpTimerInterval = null;
+        let otpPendingEmail = null;
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            
+            // Mostra/nascondi form principale e OTP
+            document.getElementById('authMainForm').classList.toggle('hidden', false);
+            document.getElementById('otpVerificationForm').classList.add('hidden');
+            
+            if (isLoginMode) {
+                // Modalità LOGIN
+                document.getElementById('authTitle').textContent = 'Accedi';
+                document.getElementById('authSubtitle').textContent = 'Entra nello Shop per gestire i tuoi ordini.';
+                document.getElementById('authSubmitBtn').textContent = 'Accedi';
+                document.getElementById('authToggleText').textContent = 'Non hai un account?';
+                document.getElementById('authToggleBtn').textContent = 'Registrati';
+                document.getElementById('nameField').classList.add('hidden');
+                document.getElementById('socialAuthContainer').classList.remove('hidden');
+                document.getElementById('authForm').style.display = 'block';
+            } else {
+                // Modalità REGISTRAZIONE
+                document.getElementById('authTitle').textContent = 'Registrati';
+                document.getElementById('authSubtitle').textContent = 'Crea un account per iniziare gli acquisti.';
+                document.getElementById('authSubmitBtn').textContent = 'Crea Account';
+                document.getElementById('authToggleText').textContent = 'Hai già un account?';
+                document.getElementById('authToggleBtn').textContent = 'Accedi';
+                document.getElementById('nameField').classList.remove('hidden');
+                document.getElementById('socialAuthContainer').classList.add('hidden');
+                document.getElementById('authForm').style.display = 'block';
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const inp = document.getElementById('authPassword'), ico = document.getElementById('pwEyeIcon');
+            const isHidden = inp.type === 'password';
+            inp.type = isHidden ? 'text' : 'password';
+            ico.className = isHidden ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+
+        // Timer OTP countdown
+        function startOTPTimer(minutes = 5) {
+            let seconds = minutes * 60;
+            if (otpTimerInterval) clearInterval(otpTimerInterval);
+            
+            const updateDisplay = () => {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                const display = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                const countdown = document.getElementById('otpCountdown');
+                if (countdown) {
+                    countdown.textContent = display;
+                    if (seconds < 60) countdown.parentElement.classList.add('text-red-500');
+                }
+                
+                if (seconds <= 0) {
+                    clearInterval(otpTimerInterval);
+                    const otpCodeInput = document.getElementById('otpCode');
+                    if (otpCodeInput) otpCodeInput.disabled = true;
+                    const resendBtn = document.querySelector('button:contains("Reinvia")');
+                }
+                seconds--;
+            };
+            
+            updateDisplay();
+            otpTimerInterval = setInterval(updateDisplay, 1000);
+        }
+
+        async function startOTPRegistration() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value;
+            
+            if (!email || !password || !name) {
+                showToast('Compila tutti i campi richiesti.', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('La password deve avere almeno 6 caratteri.', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('authSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Invio OTP...';
+            
+            try {
+                const res = await fetch('/api/auth/register-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    otpPendingEmail = email;
+                    document.getElementById('otpEmailDisplay').textContent = email;
+                    document.getElementById('authMainForm').classList.add('hidden');
+                    document.getElementById('otpVerificationForm').classList.remove('hidden');
+                    document.getElementById('otpCode').focus();
+                    startOTPTimer(5);
+                    showToast('Codice OTP inviato all\'email!', 'success');
+                } else {
+                    showToast(data.message || 'Errore nell\'invio OTP', 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Crea Account';
+            }
+        }
+
+        async function verifyOTP() {
+            if (!otpPendingEmail) {
+                showToast('Sessione scaduta. Riprova.', 'error');
+                return;
+            }
+            
+            const otp = document.getElementById('otpCode').value.trim();
+            if (otp.length !== 6 || !/^\d+$/.test(otp)) {
+                showToast('Inserisci un codice OTP valido (6 cifre).', 'error');
+                return;
+            }
+            
+            const btn = document.querySelector('#otpVerificationForm button[onclick="verifyOTP()"]');
+            btn.disabled = true;
+            btn.textContent = 'Verifica...';
+            
+            try {
+                const res = await fetch('/api/auth/verify-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: otpPendingEmail, otp })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    currentUser = data.user;
+                    otpPendingEmail = null;
+                    if (otpTimerInterval) clearInterval(otpTimerInterval);
+                    await loadDatabase();
+                    finishLogin();
+                } else {
+                    showToast(data.message || 'Codice OTP errato', 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verifica';
+            }
+        }
+
+        async function resendOTP() {
+            if (!otpPendingEmail) {
+                showToast('Sessione scaduta. Riprova.', 'error');
+                return;
+            }
+            
+            const btn = document.querySelector('#otpVerificationForm button[onclick="resendOTP()"]');
+            btn.disabled = true;
+            btn.textContent = 'Invio...';
+            
+            try {
+                const res = await fetch('/api/auth/resend-otp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: otpPendingEmail })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    startOTPTimer(5);
+                    document.getElementById('otpCode').value = '';
+                    document.getElementById('otpCode').focus();
+                    showToast('Nuovo codice OTP inviato!', 'success');
+                } else {
+                    showToast(data.message || 'Errore nell\'invio', 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Reinvia Codice';
+            }
+        }
+
+        function updateNavAuth() {
+            const container = document.getElementById('nav-auth-container');
+            if (currentUser) {
+                const adminBtn = currentUser.isAdmin ? `<a href="#admin" class="bg-[#111] border border-batz-border hover:border-white text-xs px-3 py-1.5 rounded-full mr-2 transition-colors"><i class="fa-solid fa-shield text-white mr-1"></i>Admin</a>` : '';
+                container.innerHTML = `${adminBtn}<a href="#client" class="flex items-center space-x-2 bg-batz-card border border-batz-border hover:border-white px-4 py-2 rounded-full group"><div class="w-6 h-6 rounded-full bg-white text-black flex items-center justify-center text-xs font-bold">${currentUser.name.charAt(0).toUpperCase()}</div><span class="text-sm font-bold group-hover:text-white">${currentUser.name.split(' ')[0]}</span></a><button onclick="logout()" class="text-batz-muted hover:text-white ml-3 transition-colors" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>`;
+            } else {
+                container.innerHTML = `<a href="#login" class="bg-white text-black hover:bg-gray-200 px-5 py-2 rounded-full text-sm font-bold flex items-center space-x-2"><i class="fa-regular fa-user"></i><span>Accedi</span></a>`;
+            }
+        }
+
+        async function handleAuthSubmit() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const name = document.getElementById('authName').value;
+            const btn = document.getElementById('authSubmitBtn');
+            
+            if (!isLoginMode) {
+                // Modalità REGISTRAZIONE con OTP
+                startOTPRegistration();
+                return;
+            }
+            
+            // Modalità LOGIN
+            btn.disabled = true;
+            btn.textContent = 'Caricamento...';
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    currentUser = data.user;
+                    await loadDatabase();
+                    finishLogin();
+                } else {
+                    showToast(data.message || 'Errore di autenticazione', 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Accedi';
+            }
+        }
+
+        async function handleGoogleLogin() {
+            if (!GOOGLE_CLIENT_ID) { showToast('Google login non configurato.', 'error'); return; }
+            if (!window.google?.accounts?.id) { showToast('Google Sign-In non è ancora pronto. Riprova.', 'error'); return; }
+            google.accounts.id.prompt();
+        }
+
+        async function handleGoogleCredentialResponse(response) {
+            if (!response.credential) { showToast('Impossibile completare il login Google.', 'error'); return; }
+            try {
+                const res = await fetch('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id_token: response.credential }) });
+                const data = await res.json();
+                if (data.status === 'success') { currentUser = data.user; await loadDatabase(); finishLogin(); }
+                else { showToast(data.message || 'Errore login Google', 'error'); }
+            } catch(e) { showToast('Errore di connessione.', 'error'); }
+        }
+
+        function finishLogin() {
+            updateNavAuth();
+            document.getElementById('clientName').textContent = currentUser.name;
+            document.getElementById('clientEmail').textContent = currentUser.email;
+            document.getElementById('clientAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            showToast('Accesso effettuato!', 'success');
+            window.location.hash = currentUser.isAdmin ? 'admin' : 'client';
+        }
+
+        async function logout() {
+            try { await fetch('/api/auth/logout', { method: 'POST' }); } catch(e) {}
+            currentUser = null; updateNavAuth(); showToast('Disconnesso.'); window.location.hash = 'home';
+        }
+
+        // ===================== PRODOTTI =====================
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid'); grid.innerHTML = '';
+            products.forEach(p => {
+                const isOut = p.stock <= 0;
+                let displayPrice = `€${parseFloat(p.price).toFixed(2)}`;
+                if (p.variants?.length > 1) displayPrice = `Da €${Math.min(...p.variants.map(v => v.price)).toFixed(2)}`;
+                else if (p.variants?.length === 1) displayPrice = `€${p.variants[0].price.toFixed(2)}`;
+
+                const card = document.createElement('div');
+                card.className = `product-card hover-card bg-batz-card border border-batz-border rounded-2xl overflow-hidden flex flex-col ${isOut ? 'opacity-50 grayscale' : 'cursor-pointer'}`;
+                card.setAttribute('data-title', p.title.toLowerCase());
+                card.innerHTML = `
+                    <div class="mock-img h-48 w-full flex flex-col items-center justify-center p-4 relative">
+                        ${isOut ? '<span class="absolute top-3 right-3 bg-red-900/50 text-white text-xs px-2 py-1 rounded-md border border-red-500/30 z-20">Esaurito</span>' : `<span class="absolute top-3 right-3 bg-white text-black text-xs px-2 py-1 rounded-md font-bold z-20">${p.stock} disp.</span>`}
+                        <div class="z-10 text-white w-full h-full flex items-center justify-center p-2">${p.icon}</div>
+                    </div>
+                    <div class="p-5 flex flex-col flex-grow bg-batz-card z-20">
+                        <h4 class="font-bold text-lg mb-1">${p.title}</h4>
+                        <div class="mt-auto flex justify-between items-center pt-4">
+                            <p class="text-white font-medium">${displayPrice}</p>
+                            ${!isOut ? '<button class="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform"><i class="fa-solid fa-bag-shopping text-sm"></i></button>' : '<i class="fa-solid fa-ban text-batz-muted"></i>'}
+                        </div>
+                    </div>`;
+                if (!isOut) card.onclick = () => openCheckoutModal(p);
+                grid.appendChild(card);
+            });
+        }
+
+        function renderMarquee() {
+            const marquee = document.getElementById('homeMarquee'); if (!marquee) return;
+            let html = '';
+            products.forEach(p => {
+                const isOut = p.stock <= 0;
+                let displayPrice = `€${parseFloat(p.price).toFixed(2)}`;
+                if (p.variants?.length > 1) displayPrice = `Da €${Math.min(...p.variants.map(v => v.price)).toFixed(2)}`;
+                else if (p.variants?.length === 1) displayPrice = `€${p.variants[0].price.toFixed(2)}`;
+                html += `<div class="w-72 flex-shrink-0 mx-4 bg-batz-card border border-batz-border rounded-2xl overflow-hidden flex flex-col cursor-pointer hover:border-white transition-colors" onclick="window.location.hash='products'"><div class="mock-img h-40 w-full flex items-center justify-center p-4">${isOut ? '<span class="absolute top-3 right-3 bg-red-900/50 text-white text-xs px-2 py-1 rounded-md border border-red-500/30">Esaurito</span>' : ''}<div class="text-white">${p.icon}</div></div><div class="p-4 text-left bg-batz-card"><h4 class="font-bold text-md truncate">${p.title}</h4><p class="text-white font-medium mt-1">${displayPrice}</p></div></div>`;
+            });
+            marquee.innerHTML = html + html;
+        }
+
+        // ===================== CHECKOUT MODAL =====================
+        function openCheckoutModal(product) {
+            if (!currentUser) { showToast("Devi effettuare l'accesso per acquistare."); window.location.hash = 'login'; return; }
+            document.getElementById('modalTitle').textContent = product.title;
+            document.getElementById('modalIcon').innerHTML = product.icon;
+            document.getElementById('selectedProductId').value = product.id;
+            const vSelect = document.getElementById('variantSelect');
+            if (product.variants?.length > 0) {
+                vSelect.classList.remove('hidden');
+                vSelect.innerHTML = product.variants.map((v, i) => `<option value="${i}" ${(v.stock||0)<=0?'disabled':''}>${v.name} - €${parseFloat(v.price).toFixed(2)} ${(v.stock||0)<=0?'(Esaurito)':`(${v.stock} disp.)`}</option>`).join('');
+                const firstAvail = Math.max(0, product.variants.findIndex(v => (v.stock||0) > 0));
+                vSelect.value = firstAvail;
+                vSelect.onchange = (e) => { document.getElementById('modalPrice').textContent = `€${parseFloat(product.variants[e.target.value].price).toFixed(2)}`; };
+                document.getElementById('modalPrice').textContent = `€${parseFloat(product.variants[firstAvail].price).toFixed(2)}`;
+            } else {
+                vSelect.classList.add('hidden'); vSelect.innerHTML = '';
+                document.getElementById('modalPrice').textContent = `€${parseFloat(product.price).toFixed(2)}`;
+            }
+            document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('border-white', 'bg-[#111]'));
+            document.getElementById('selectedPaymentMethod').value = '';
+            const proceedBtn = document.getElementById('proceedBuyBtn');
+            proceedBtn.disabled = true; proceedBtn.classList.add('opacity-50', 'cursor-not-allowed'); proceedBtn.textContent = 'Seleziona Pagamento';
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() { document.getElementById('checkoutModal').classList.add('hidden'); }
+
+        function cancelPayment() {
+            stopPaymentTimer();
+            tempOrderParams = null;
+            window.location.hash = 'products';
+        }
+
+        function selectPayment(method) {
+            document.getElementById('selectedPaymentMethod').value = method;
+            document.querySelectorAll('.payment-btn').forEach(btn => {
+                btn.classList.toggle('border-white', btn.textContent.trim().includes(method));
+                btn.classList.toggle('bg-[#111]', btn.textContent.trim().includes(method));
+            });
+            const proceedBtn = document.getElementById('proceedBuyBtn');
+            proceedBtn.disabled = false; proceedBtn.classList.remove('opacity-50', 'cursor-not-allowed'); proceedBtn.textContent = `Procedi all'ordine`;
+        }
+
+        function showPaymentScreen(order) {
+            const method = order.method;
+            const finalTitle = order.productTitle;
+            const finalPrice = order.price;
+
+            document.getElementById('payOrderTitle').textContent = `Ordine: ${finalTitle} (${order.id})`;
+            document.getElementById('payMethodLabel').textContent = `Istruzioni — ${method}`;
+            document.getElementById('cryptoHelperText').classList.add('hidden');
+            document.getElementById('paypalHelperText').classList.add('hidden');
+            document.getElementById('qrCodeContainer').classList.add('hidden');
+            
+            const txInput = document.getElementById('payTxHash');
+            if (txInput) txInput.value = '';
+
+            if (method === 'PayPal') {
+                document.getElementById('payTypeText').textContent = 'conto PayPal';
+                document.getElementById('payAddress').value = paymentSettings.paypal || '';
+                document.getElementById('payAmount').textContent = `€${parseFloat(finalPrice).toFixed(2)}`;
+                document.getElementById('paypalHelperText').classList.remove('hidden');
+                
+                const txContainer = document.getElementById('txHashContainer');
+                if (txContainer) txContainer.classList.add('hidden');
+            } else {
+                const symbol = method === 'Bitcoin' ? 'btc' : method === 'Ethereum' ? 'eth' : 'ltc';
+                const addrMap = { Bitcoin: paymentSettings.btc, Ethereum: paymentSettings.eth, Litecoin: paymentSettings.ltc };
+                const typeMap = { Bitcoin: 'indirizzo Bitcoin (BTC)', Ethereum: 'indirizzo Ethereum (ETH)', Litecoin: 'indirizzo Litecoin (LTC)' };
+                document.getElementById('payTypeText').textContent = typeMap[method];
+                document.getElementById('payAddress').value = addrMap[method] || '';
+                document.getElementById('cryptoHelperText').classList.remove('hidden');
+                
+                const amountStr = `${order.cryptoAmount} ${symbol.toUpperCase()}`;
+                document.getElementById('payAmount').textContent = amountStr;
+                
+                // Genera QR code
+                generateQRCode(addrMap[method]);
+                document.getElementById('qrCodeContainer').classList.remove('hidden');
+                
+                const txContainer = document.getElementById('txHashContainer');
+                if (txContainer) txContainer.classList.remove('hidden');
+            }
+
+            tempOrderParams = order;
+            closeCheckoutModal();
+            
+            const elapsed = Math.floor(Date.now() / 1000) - order.orderTimestamp;
+            const remaining = 30 * 60 - elapsed;
+            
+            if (remaining <= 0) {
+                showToast('Questo ordine è scaduto.', 'error');
+                window.location.hash = 'products';
+                return;
+            }
+            
+            startPaymentTimer(remaining);
+            window.location.hash = 'payment';
+        }
+
+        async function proceedToPayment() {
+            const pId = document.getElementById('selectedProductId').value;
+            const method = document.getElementById('selectedPaymentMethod').value;
+            const product = products.find(p => p.id === pId);
+            if (!product || product.stock <= 0) return;
+
+            let finalPrice = product.price; let finalTitle = product.title;
+            const vIndex = document.getElementById('variantSelect').value;
+            if (product.variants?.length > 0) {
+                finalPrice = parseFloat(product.variants[vIndex].price);
+                finalTitle = `${product.title} (${product.variants[vIndex].name})`;
+            }
+
+            const proceedBtn = document.getElementById('proceedBuyBtn');
+            proceedBtn.disabled = true; proceedBtn.innerHTML = '<i class="fa-solid fa-spinner spin mr-2"></i>Creazione ordine...';
+
+            const payload = {
+                productId: product.id,
+                variantIndex: product.variants?.length > 0 ? parseInt(vIndex) : null,
+                finalPrice, finalTitle, method
+            };
+
+            try {
+                const res = await fetch('/api/orders', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    orders.unshift(data.order);
+                    if (product.variants?.length > 0 && payload.variantIndex !== null) {
+                        if (product.variants[payload.variantIndex]) product.variants[payload.variantIndex].stock -= 1;
+                    }
+                    product.stock -= 1;
+                    renderProducts(); renderMarquee();
+                    showPaymentScreen(data.order);
+                } else {
+                    showToast(data.message || "Errore durante la creazione dell'ordine", 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione durante la creazione dell\'ordine.', 'error');
+            } finally {
+                proceedBtn.disabled = false; proceedBtn.textContent = `Procedi all'ordine`;
+            }
+        }
+
+        // ===================== PAYMENT TIMER =====================
+        function startPaymentTimer(seconds) {
+            stopPaymentTimer();
+            let remaining = seconds;
+            const timerEl = document.getElementById('paymentTimer');
+            const update = () => {
+                if (!timerEl) return;
+                const m = Math.floor(remaining / 60), s = remaining % 60;
+                timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                if (remaining <= 120) timerEl.classList.add('timer-urgent');
+                else timerEl.classList.remove('timer-urgent');
+                if (remaining <= 0) {
+                    stopPaymentTimer();
+                    showToast('Tempo scaduto! Torna ai prodotti e riprova.', 'error');
+                    cancelPayment();
+                }
+                remaining--;
+            };
+            update();
+            paymentTimerInterval = setInterval(update, 1000);
+        }
+
+        function stopPaymentTimer() {
+            if (paymentTimerInterval) { clearInterval(paymentTimerInterval); paymentTimerInterval = null; }
+        }
+
+        // ===================== QR CODE (micro-lib inline) =====================
+        // Implementazione QR code minimalista — genera un QR code a bassa risoluzione
+        function generateQRCode(data) {
+            const canvas = document.getElementById('qrCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const size = 120;
+            canvas.width = size; canvas.height = size;
+            // Usa un servizio QR esterno via immagine (no dipendenze)
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            // API pubblica QR code Google Charts
+            img.src = `https://chart.googleapis.com/chart?chs=120x120&cht=qr&chl=${encodeURIComponent(data)}&choe=UTF-8`;
+            img.onload = () => { ctx.drawImage(img, 0, 0, size, size); };
+            img.onerror = () => {
+                // Fallback: disegna testo semplice
+                ctx.fillStyle = '#ffffff'; ctx.fillRect(0,0,size,size);
+                ctx.fillStyle = '#000000'; ctx.font = '10px monospace'; ctx.textAlign = 'center';
+                ctx.fillText('QR', size/2, size/2);
+            };
+        }
+
+        function copyPayAddress() {
+            const inp = document.getElementById('payAddress');
+            navigator.clipboard?.writeText(inp.value).catch(() => {
+                inp.select(); document.execCommand('copy');
+            });
+            const btn = document.getElementById('copyBtn');
+            btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>OK'; btn.classList.add('bg-white', 'text-black');
+            setTimeout(() => { btn.innerHTML = '<i class="fa-solid fa-copy mr-1"></i>COPIA'; btn.classList.remove('bg-white', 'text-black'); }, 2000);
+            showToast('Indirizzo copiato!', 'success');
+        }
+
+        async function confirmFinalPurchase() {
+            if (!tempOrderParams) return;
+            const orderId = tempOrderParams.id;
+            const txHashInput = document.getElementById('payTxHash');
+            const txHash = txHashInput ? txHashInput.value.trim() : '';
+
+            const btn = document.getElementById('confirmPayBtn');
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner spin mr-2"></i>Verifica in corso...';
+
+            try {
+                const res = await fetch('/api/orders/submit-payment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId, txHash })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const idx = orders.findIndex(o => o.id === orderId);
+                    if (idx !== -1) orders[idx] = data.order;
+                    
+                    stopPaymentTimer();
+                    tempOrderParams = null;
+                    
+                    if (data.verified) {
+                        showToast('Pagamento verificato automaticamente on-chain con successo!', 'success');
+                    } else {
+                        showToast('Notifica inviata con successo. In attesa di verifica.', 'success');
+                    }
+                    renderClientOrders();
+                    window.location.hash = 'client';
+                } else {
+                    showToast(data.message || "Errore durante l'invio della notifica", 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione durante la verifica.', 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Ho effettuato il pagamento';
+            }
+        }
+
+        // ===================== CLIENT PANEL =====================
+        function switchClientTab(tab) {
+            ['orders','reviews'].forEach(t => {
+                document.getElementById(`tab-${t}`).className = `pb-3 border-b-2 font-medium transition-colors ${t === tab ? 'border-white text-white' : 'border-transparent text-batz-muted hover:text-white'}`;
+                document.getElementById(`client-${t}-content`).classList.toggle('hidden', t !== tab);
+            });
+            if (tab === 'orders') renderClientOrders();
+        }
+
+        function getStatusBadgeHtml(status) {
+            const map = {
+                'In Attesa di Pagamento': '<span class="badge-attesa text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1"><i class="fa-solid fa-hourglass-start text-xs"></i> Attesa Pagam.</span>',
+                'In Attesa di Verifica': '<span class="badge-attesa text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1"><i class="fa-solid fa-clock text-xs"></i> In Verifica</span>',
+                'Pagamento Verificato': '<span class="badge-verificato text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1"><i class="fa-solid fa-shield-check text-xs"></i> Verificato</span>',
+                'Completato': '<span class="badge-completato text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1"><i class="fa-solid fa-check text-xs"></i> Completato</span>',
+                'Rifiutato': '<span class="badge-rifiutato text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1"><i class="fa-solid fa-ban text-xs"></i> Rifiutato</span>',
+                'Annullato': '<span class="badge-annullato text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap inline-flex items-center gap-1"><i class="fa-solid fa-circle-xmark text-xs"></i> Annullato</span>'
+            };
+            return map[status] || `<span class="text-xs px-2 py-1 border border-batz-border rounded-full">${status}</span>`;
+        }
+
+        function getMethodIcon(method) {
+            const icons = { PayPal: 'fa-brands fa-paypal', Bitcoin: 'fa-brands fa-bitcoin', Ethereum: 'fa-brands fa-ethereum', Litecoin: 'fa-solid fa-coins' };
+            return `<i class="${icons[method] || 'fa-solid fa-credit-card'} mr-1"></i>`;
+        }
+
+        function renderClientOrders() {
+            const tbody = document.getElementById('ordersTableBody'); tbody.innerHTML = '';
+            const myOrders = currentUser?.isAdmin ? orders : orders.filter(o => o.userId === currentUser?.id);
+            if (myOrders.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-batz-muted">Nessun ordine effettuato.</td></tr>`; return; }
+            myOrders.forEach(o => {
+                let actionHtml = '<span class="text-xs text-batz-muted">—</span>';
+                if (o.status === 'In Attesa di Pagamento') {
+                    actionHtml = `
+                        <div class="flex justify-end gap-2">
+                            <button onclick="resumePayment('${o.id}')" class="bg-white text-black text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors">
+                                Paga Ora
+                            </button>
+                            <button onclick="clientCancelOrder('${o.id}')" class="bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-red-500/20 transition-colors">
+                                Annulla
+                            </button>
+                        </div>`;
+                }
+                tbody.innerHTML += `<tr class="border-b border-batz-border hover:bg-[#0f0f0f] transition-colors">
+                    <td class="p-4 font-mono text-xs text-batz-muted">${o.id}</td>
+                    <td class="p-4 font-medium text-sm">${o.productTitle}</td>
+                    <td class="p-4 text-sm">${getMethodIcon(o.method)}${o.method}</td>
+                    <td class="p-4 text-batz-muted text-sm">${o.date}</td>
+                    <td class="p-4 font-mono text-sm">€${parseFloat(o.price).toFixed(2)}</td>
+                    <td class="p-4">${getStatusBadgeHtml(o.status)}</td>
+                    <td class="p-4 text-right">${actionHtml}</td>
+                </tr>`;
+            });
+        }
+
+        function resumePayment(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (!order) return;
+            showPaymentScreen(order);
+        }
+
+        async function clientCancelOrder(orderId) {
+            if (!confirm('Sei sicuro di voler annullare questo ordine? La scorta verrà rilasciata.')) return;
+            try {
+                const res = await fetch('/api/orders/cancel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ orderId })
+                });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    showToast('Ordine annullato con successo.', 'success');
+                    const idx = orders.findIndex(o => o.id === orderId);
+                    if (idx !== -1) orders[idx] = data.order;
+                    await loadDatabase();
+                    renderClientOrders();
+                } else {
+                    showToast(data.message || "Errore durante l'annullamento", 'error');
+                }
+            } catch(e) {
+                showToast('Errore di connessione.', 'error');
+            }
+        }
+
+        // ===================== REVIEWS =====================
+        function setRating(r) {
+            currentRating = r;
+            const stars = document.getElementById('starRating').children;
+            for (let i = 0; i < 5; i++) stars[i].className = `fa-solid fa-star cursor-pointer hover:text-white ${i < r ? 'text-white' : 'text-batz-muted'}`;
+        }
+
+        async function submitReview() {
+            const text = document.getElementById('reviewText').value;
+            if (!text.trim()) { showToast('Inserisci un testo per la recensione.', 'error'); return; }
+            try {
+                const res = await fetch('/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rating: currentRating, text }) });
+                const data = await res.json();
+                if (data.status === 'success') { reviews.unshift(data.review); document.getElementById('reviewText').value = ''; setRating(5); showToast('Recensione pubblicata!', 'success'); }
+                else { showToast(data.message || 'Errore', 'error'); }
+            } catch(e) { showToast('Errore di connessione.', 'error'); }
+        }
+
+        function renderPublicReviews() {
+            const container = document.getElementById('publicReviewsContainer'); const noMsg = document.getElementById('noReviewsMsg'); container.innerHTML = '';
+            if (reviews.length === 0) { container.classList.add('hidden'); noMsg.classList.remove('hidden'); return; }
+            container.classList.remove('hidden'); noMsg.classList.add('hidden');
+            reviews.forEach(r => {
+                const stars = Array.from({length:5}, (_, i) => `<i class="fa-solid fa-star ${i < r.rating ? 'text-white' : 'text-batz-border'}"></i>`).join('');
+                container.innerHTML += `<div class="bg-batz-card border border-batz-border p-6 rounded-2xl hover-card">
+                    <div class="flex items-center space-x-1 mb-4 text-sm">${stars}</div>
+                    <p class="text-gray-300 italic mb-4">"${r.text}"</p>
+                    <div class="flex justify-between items-end">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full bg-[#111] border border-batz-border flex items-center justify-center font-bold text-sm mr-3">${r.userName.charAt(0).toUpperCase()}</div>
+                            <div><h5 class="font-bold text-sm">${r.userName}</h5><span class="text-xs text-batz-muted">Acquirente Verificato</span></div>
+                        </div>
+                        <span class="text-xs text-batz-muted">${r.date}</span>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // ===================== ADMIN =====================
+        function switchAdminTab(tab) {
+            ['orders', 'products', 'settings'].forEach(t => {
+                document.getElementById(`admin-tab-${t}`).classList.toggle('active', t === tab);
+                document.getElementById(`admin-tab-content-${t}`).classList.toggle('hidden', t !== tab);
+            });
+            if (tab === 'orders') renderAdminOrders();
+        }
+
+        async function loadAdminStats() {
+            try {
+                const res = await fetch('/api/admin/stats');
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const s = data.stats;
+                    document.getElementById('statRevenue').textContent = `€${parseFloat(s.totalRevenue).toFixed(2)}`;
+                    document.getElementById('statPending').textContent = s.pendingOrders;
+                    document.getElementById('statTotal').textContent = s.totalOrders;
+                    document.getElementById('statUsers').textContent = s.totalUsers;
+                }
+            } catch(e) {}
+        }
+
+        function filterOrders(filter) {
+            currentOrderFilter = filter;
+            document.querySelectorAll('.order-filter-btn').forEach(btn => {
+                const isActive = btn.dataset.filter === filter;
+                btn.className = `order-filter-btn px-4 py-2 rounded-full text-sm border font-medium transition-all ${isActive ? 'border-white bg-white text-black' : 'border-batz-border text-batz-muted hover:border-white hover:text-white'}`;
+            });
+            renderAdminOrders();
+        }
+
+        function renderAdminOrders() {
+            const tbody = document.getElementById('adminOrdersTable'); tbody.innerHTML = '';
+            const noOrders = document.getElementById('noAdminOrders');
+            let filtered = currentOrderFilter === 'all' ? orders : orders.filter(o => o.status === currentOrderFilter);
+            if (filtered.length === 0) { noOrders.classList.remove('hidden'); return; }
+            noOrders.classList.add('hidden');
+            filtered.forEach(o => {
+                const fraudFlags = [];
+                if (o.same_ip_count > 3) fraudFlags.push(`<span class="fraud-flag bg-red-900/20 text-red-400 border border-red-500/20"><i class="fa-solid fa-triangle-exclamation"></i>IP x${o.same_ip_count}</span>`);
+                else if (o.same_ip_count > 0) fraudFlags.push(`<span class="fraud-flag bg-yellow-900/20 text-yellow-400 border border-yellow-500/20"><i class="fa-solid fa-flag"></i>IP x${o.same_ip_count}</span>`);
+                const cryptoInfo = o.cryptoAmount ? `<span class="block text-xs text-batz-muted font-mono">${o.cryptoAmount}</span>` : '';
+                tbody.innerHTML += `<tr class="order-row border-b border-batz-border transition-colors">
+                    <td class="p-4 font-mono text-xs text-batz-muted">${o.id}</td>
+                    <td class="p-4"><div class="text-sm font-medium">${o.userName}</div><div class="text-xs text-batz-muted">${o.userEmail || ''}</div></td>
+                    <td class="p-4 text-sm font-medium">${o.productTitle}</td>
+                    <td class="p-4"><div class="flex items-center text-sm">${getMethodIcon(o.method)}${o.method}</div><div class="text-xs text-batz-muted font-mono">€${parseFloat(o.price).toFixed(2)}${cryptoInfo}</div></td>
+                    <td class="p-4 text-sm text-batz-muted">${o.date}</td>
+                    <td class="p-4">${getStatusBadgeHtml(o.status)}</td>
+                    <td class="p-4">${fraudFlags.join(' ') || '<span class="text-xs text-batz-muted">—</span>'}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="openOrderDetail('${o.id}')" class="bg-[#111] border border-batz-border hover:border-white text-white text-xs px-3 py-2 rounded-lg transition-colors">
+                            <i class="fa-solid fa-ellipsis-vertical mr-1"></i>Gestisci
+                        </button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        function openOrderDetail(orderId) {
+            currentAdminOrderId = orderId;
+            const o = orders.find(o => o.id === orderId);
+            if (!o) return;
+            const content = document.getElementById('orderDetailContent');
+            const cryptoLine = o.cryptoAmount ? `<div class="flex justify-between"><span class="text-batz-muted">Importo Crypto</span><span class="font-mono text-white">${o.cryptoAmount} ${o.method === 'Bitcoin' ? 'BTC' : o.method === 'Ethereum' ? 'ETH' : 'LTC'}</span></div>` : '';
+            const refLine = o.paymentRef ? `<div class="flex justify-between"><span class="text-batz-muted">TX Hash</span><span class="font-mono text-xs text-white truncate max-w-[200px]">${o.paymentRef}</span></div>` : '';
+            
+            const ipVerificationHtml = o.client_ip ? `
+                <div class="flex justify-between"><span class="text-batz-muted">IP Ordine</span><span class="font-mono text-xs text-white">${o.client_ip}</span></div>
+                <div class="flex justify-between"><span class="text-batz-muted">IP Pagamento</span><span class="font-mono text-xs text-white">${o.payment_ip || 'N/A'}</span></div>
+                <div class="flex justify-between items-center"><span class="text-batz-muted">Verifica IP</span><span>${o.payment_ip ? (o.client_ip === o.payment_ip ? '<span class="text-green-400 font-bold bg-green-950/20 border border-green-500/20 px-2 py-0.5 rounded text-xs"><i class="fa-solid fa-check mr-1"></i>Coincide</span>' : '<span class="text-red-400 font-bold bg-red-950/20 border border-red-500/20 px-2 py-0.5 rounded text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i>Discrepanza!</span>') : '<span class="text-batz-muted text-xs">Attesa pagamento</span>'}</span></div>
+            ` : '';
+
+            content.innerHTML = `
+                <div class="bg-[#050505] border border-batz-border rounded-xl p-4 space-y-2 text-sm">
+                    <div class="flex justify-between"><span class="text-batz-muted">ID Ordine</span><span class="font-mono font-bold">${o.id}</span></div>
+                    <div class="flex justify-between"><span class="text-batz-muted">Cliente</span><span>${o.userName} <span class="text-batz-muted">(${o.userEmail || 'N/A'})</span></span></div>
+                    <div class="flex justify-between"><span class="text-batz-muted">Prodotto</span><span>${o.productTitle}</span></div>
+                    <div class="flex justify-between"><span class="text-batz-muted">Prezzo EUR</span><span class="font-mono">€${parseFloat(o.price).toFixed(2)}</span></div>
+                    ${cryptoLine}
+                    ${refLine}
+                    <div class="flex justify-between"><span class="text-batz-muted">Metodo</span><span>${getMethodIcon(o.method)}${o.method}</span></div>
+                    <div class="flex justify-between"><span class="text-batz-muted">Data</span><span>${o.date}</span></div>
+                    ${ipVerificationHtml}
+                    <div class="flex justify-between items-center"><span class="text-batz-muted">Stato</span>${getStatusBadgeHtml(o.status)}</div>
+                    ${o.adminNotes ? `<div class="pt-2 border-t border-batz-border"><span class="text-batz-muted block mb-1">Note Admin</span><span class="text-white">${o.adminNotes}</span></div>` : ''}
+                </div>`;
+            document.getElementById('adminOrderNotes').value = o.adminNotes || '';
+            document.getElementById('detailOrderId').value = orderId;
+            document.getElementById('checkPaymentResult').classList.add('hidden');
+            document.getElementById('adminOrderDetailModal').classList.remove('hidden');
+        }
+
+        function closeOrderDetailModal() { document.getElementById('adminOrderDetailModal').classList.add('hidden'); }
+
+        async function updateOrderStatus(newStatus) {
+            const orderId = document.getElementById('detailOrderId').value;
+            const notes = document.getElementById('adminOrderNotes').value;
+            try {
+                const res = await fetch('/api/admin/orders/update-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId, status: newStatus, adminNotes: notes }) });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const idx = orders.findIndex(o => o.id === orderId);
+                    if (idx !== -1) orders[idx] = data.order;
+                    showToast(`Stato → ${newStatus}`, 'success');
+                    closeOrderDetailModal();
+                    renderAdminOrders();
+                    loadAdminStats();
+                } else { showToast(data.message || 'Errore', 'error'); }
+            } catch(e) { showToast('Errore di connessione.', 'error'); }
+        }
+
+        async function checkOrderPayment() {
+            const orderId = document.getElementById('detailOrderId').value;
+            const btn = document.getElementById('checkPaymentBtn');
+            const resultEl = document.getElementById('checkPaymentResult');
+            btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner spin mr-2"></i>Verifica...';
+            resultEl.classList.add('hidden');
+            try {
+                const res = await fetch('/api/admin/orders/check-payment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId }) });
+                const data = await res.json();
+                if (data.status === 'success') {
+                    const result = data.result;
+                    if (result.manual) {
+                        resultEl.className = 'p-3 rounded-lg border text-sm mt-2 bg-yellow-900/10 border-yellow-500/20 text-yellow-300';
+                        resultEl.innerHTML = `<i class="fa-solid fa-circle-info mr-2"></i>${result.message}`;
+                    } else if (result.found) {
+                        resultEl.className = 'p-3 rounded-lg border text-sm mt-2 bg-green-900/20 border-green-500/30 text-green-300';
+                        resultEl.innerHTML = `<i class="fa-solid fa-check-circle mr-2"></i>Pagamento trovato! TX: <span class="font-mono text-xs">${result.tx_id || result.tx_hash || ''}</span> (${result.confirmations} conferme)`;
+                        // Aggiorna ordine localmente
+                        const idx = orders.findIndex(o => o.id === orderId);
+                        if (idx !== -1 && data.order) orders[idx] = data.order;
+                        renderAdminOrders();
+                    } else {
+                        resultEl.className = 'p-3 rounded-lg border text-sm mt-2 bg-red-900/10 border-red-500/20 text-red-300';
+                        resultEl.innerHTML = `<i class="fa-solid fa-circle-xmark mr-2"></i>${result.error || 'Nessuna transazione trovata.'}`;
+                    }
+                    resultEl.classList.remove('hidden');
+                }
+            } catch(e) { showToast('Errore di verifica.', 'error'); }
+            finally { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-satellite-dish mr-2"></i>Verifica On-Chain'; }
+        }
+
+        // ===================== ADMIN PRODOTTI =====================
+        function populatePaymentSettingsInputs() {
+            document.getElementById('adminPaypal').value = paymentSettings.paypal || '';
+            document.getElementById('adminBtc').value = paymentSettings.btc || '';
+            document.getElementById('adminEth').value = paymentSettings.eth || '';
+            document.getElementById('adminLtc').value = paymentSettings.ltc || '';
+        }
+
+        async function savePaymentSettings() {
+            paymentSettings.paypal = document.getElementById('adminPaypal').value;
+            paymentSettings.btc = document.getElementById('adminBtc').value;
+            paymentSettings.eth = document.getElementById('adminEth').value;
+            paymentSettings.ltc = document.getElementById('adminLtc').value;
+            await saveAdminData();
+            showToast('Impostazioni di Pagamento Salvate!', 'success');
+        }
+
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminProductsTable'); tbody.innerHTML = '';
+            products.forEach(p => {
+                const safeTitle = p.title.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+                const variantsCount = p.variants?.length || 0;
+                const isStockComputed = variantsCount > 0;
+                tbody.innerHTML += `<tr class="border-b border-batz-border hover:bg-[#0f0f0f] transition-colors">
+                    <td class="p-4"><div class="w-12 h-12 bg-[#050505] border border-batz-border rounded-lg flex items-center justify-center text-white overflow-hidden p-1">${p.icon}</div></td>
+                    <td class="p-4"><input type="file" accept="image/*" onchange="updateProductImage('${p.id}', this)" class="w-full text-xs text-batz-muted file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200 transition-colors"></td>
+                    <td class="p-4"><input type="text" value="${safeTitle}" onchange="updateProduct('${p.id}', 'title', this.value)" class="w-full bg-[#050505] border border-batz-border rounded-lg p-2 text-white text-sm outline-none focus:border-white transition-colors"></td>
+                    <td class="p-4"><button onclick="openVariantModal('${p.id}')" class="bg-[#111] border border-batz-border hover:border-white text-xs px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap">Gestisci (${variantsCount})</button></td>
+                    <td class="p-4"><input type="number" step="0.01" value="${p.price}" onchange="updateProduct('${p.id}', 'price', this.value)" class="w-24 bg-[#050505] border border-batz-border rounded-lg p-2 text-white text-sm outline-none focus:border-white transition-colors"></td>
+                    <td class="p-4"><input type="number" value="${p.stock}" ${isStockComputed ? 'readonly title="Calcolato dalle varianti"' : `onchange="updateProduct('${p.id}', 'stock', this.value)"`} class="w-20 bg-[#050505] border border-batz-border rounded-lg p-2 text-white text-sm outline-none ${isStockComputed ? 'opacity-50 cursor-not-allowed' : 'focus:border-white transition-colors'}"></td>
+                    <td class="p-4 text-right"><button onclick="deleteProduct('${p.id}')" class="text-red-500 hover:text-red-400 p-2 transition-colors"><i class="fa-solid fa-trash"></i></button></td>
+                </tr>`;
+            });
+        }
+
+        function openVariantModal(productId) {
+            document.getElementById('editingVariantProductId').value = productId;
+            const prod = products.find(p => p.id === productId);
+            const list = document.getElementById('variantList'); list.innerHTML = '';
+            if (prod.variants?.length > 0) prod.variants.forEach(v => addVariantRowToUI(v.name, v.price, v.stock));
+            else addVariantRowToUI('', prod.price, prod.stock);
+            document.getElementById('adminVariantModal').classList.remove('hidden');
+        }
+
+        function closeVariantModal() { document.getElementById('adminVariantModal').classList.add('hidden'); }
+
+        function addVariantRowToUI(name = '', price = 0, stock = 0) {
+            const list = document.getElementById('variantList'); const row = document.createElement('div');
+            row.className = 'flex items-center space-x-2 variant-row';
+            row.innerHTML = `<input type="text" placeholder="Nome Variante" value="${name.replace(/"/g, '&quot;')}" class="flex-1 bg-[#050505] border border-batz-border rounded-lg p-2 text-white text-sm outline-none focus:border-white transition-colors var-name"><input type="number" placeholder="Prezzo" step="0.01" value="${price}" class="w-24 bg-[#050505] border border-batz-border rounded-lg p-2 text-white text-sm outline-none focus:border-white transition-colors var-price"><input type="number" placeholder="Scorte" value="${stock}" class="w-20 bg-[#050505] border border-batz-border rounded-lg p-2 text-white text-sm outline-none focus:border-white transition-colors var-stock"><button onclick="this.parentElement.remove()" class="bg-[#111] border border-batz-border text-batz-muted hover:text-red-500 p-2 rounded-lg transition-colors"><i class="fa-solid fa-trash"></i></button>`;
+            list.appendChild(row);
+        }
+
+        function addVariantRow() { addVariantRowToUI('', 0, 0); }
+
+        async function saveVariants() {
+            const pId = document.getElementById('editingVariantProductId').value;
+            const prod = products.find(p => p.id === pId); if (!prod) return;
+            const newVariants = [];
+            document.querySelectorAll('.variant-row').forEach(row => {
+                const name = row.querySelector('.var-name').value;
+                const price = parseFloat(row.querySelector('.var-price').value) || 0;
+                const stock = parseInt(row.querySelector('.var-stock').value) || 0;
+                if (name) newVariants.push({ name, price, stock });
+            });
+            prod.variants = newVariants;
+            if (newVariants.length > 0) { prod.price = Math.min(...newVariants.map(v => v.price)); prod.stock = newVariants.reduce((s, v) => s + v.stock, 0); }
+            await saveAdminData(); closeVariantModal(); showToast('Varianti salvate!', 'success'); renderAdminTable(); renderProducts(); renderMarquee();
+        }
+
+        async function updateProduct(id, field, value) {
+            const prod = products.find(p => p.id === id); if (!prod) return;
+            if (field === 'price') prod[field] = parseFloat(value) || 0;
+            else if (field === 'stock') prod[field] = parseInt(value) || 0;
+            else prod[field] = value;
+            await saveAdminData(); showToast('Prodotto salvato!', 'success'); renderProducts(); renderMarquee();
+        }
+
+        function getBase64(file) { return new Promise((res, rej) => { const r = new FileReader(); r.readAsDataURL(file); r.onload = () => res(r.result); r.onerror = e => rej(e); }); }
+
+        async function updateProductImage(id, inputElement) {
+            if (inputElement.files?.[0]) {
+                try {
+                    const base64 = await getBase64(inputElement.files[0]);
+                    const prod = products.find(p => p.id === id);
+                    if (prod) { prod.icon = `<img src="${base64}" class="max-h-[100px] w-auto mx-auto object-contain drop-shadow-lg z-10 relative">`; await saveAdminData(); showToast('Immagine aggiornata!', 'success'); renderAdminTable(); renderProducts(); renderMarquee(); }
+                } catch(e) {}
+            }
+        }
+
+        async function addNewProduct() {
+            const title = document.getElementById('newProdTitle').value;
+            const price = parseFloat(document.getElementById('newProdPrice').value) || 0;
+            const stock = parseInt(document.getElementById('newProdStock').value) || 0;
+            const fileInput = document.getElementById('newProdImage');
+            if (!title) { showToast('Titolo richiesto!', 'error'); return; }
+            let iconHtml = '<i class="fa-solid fa-box text-4xl"></i>';
+            if (fileInput.files?.[0]) { try { const b = await getBase64(fileInput.files[0]); iconHtml = `<img src="${b}" alt="${title}" class="max-h-[100px] w-auto mx-auto object-contain drop-shadow-lg z-10 relative">`; } catch(e) {} }
+            products.push({ id: 'p' + Date.now(), title, price, stock, icon: iconHtml, variants: [] });
+            document.getElementById('newProdTitle').value = ''; fileInput.value = ''; document.getElementById('newProdPrice').value = ''; document.getElementById('newProdStock').value = '';
+            await saveAdminData(); showToast('Nuovo prodotto aggiunto!', 'success'); renderAdminTable(); renderProducts(); renderMarquee();
+        }
+
+        async function deleteProduct(id) {
+            if (confirm('Eliminare questo prodotto?')) {
+                products = products.filter(p => p.id !== id);
+                await saveAdminData(); showToast('Prodotto eliminato!', 'success'); renderAdminTable(); renderProducts(); renderMarquee();
+            }
+        }
+
+        async function updateSiteLogo(inputElement) {
+            if (inputElement.files?.[0]) {
+                try {
+                    const base64 = await getBase64(inputElement.files[0]);
+                    const navLogo = document.querySelector('nav img');
+                    if (navLogo) { navLogo.src = base64; currentLogo = base64; await saveAdminData(); showToast('Logo aggiornato!', 'success'); }
+                } catch(e) {}
+            }
+        }
+
+        // ===================== SEARCH =====================
+        document.getElementById('searchInput')?.addEventListener('input', e => {
+            const q = e.target.value.toLowerCase(); let hasVisible = false;
+            document.querySelectorAll('.product-card').forEach(card => {
+                const match = card.getAttribute('data-title').includes(q);
+                card.style.display = match ? 'flex' : 'none';
+                if (match) hasVisible = true;
+            });
+            document.getElementById('noResults').classList.toggle('hidden', hasVisible);
+            document.getElementById('productsGrid').classList.toggle('hidden', !hasVisible);
+        });
+
+        // ===================== INIT =====================
+        window.addEventListener('load', async () => {
+            if (GOOGLE_CLIENT_ID && window.google?.accounts?.id) {
+                google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleCredentialResponse, ux_mode: 'popup' });
+            }
+            await loadDatabase();
+            handleRoute();
+        });
+    </script>
+</body>
+</html>
